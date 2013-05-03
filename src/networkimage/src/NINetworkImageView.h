@@ -25,23 +25,23 @@
 
 // See the diskCacheLifetime property for more documentation related to this enumeration.
 typedef enum {
-  /**
-   * Store images on disk in the session disk cache. Images stored with this lifetime will
-   * be removed when the app starts again or when the session cache is explicitly cleared.
-   */
-  NINetworkImageViewDiskCacheLifetimeSession,
-
-  /**
-   * Store images on disk in the permanent disk cache. Images stored with this lifetime will
-   * only be removed when the permanent cache is explicitly cleared.
-   */
-  NINetworkImageViewDiskCacheLifetimePermanent,
+    /**
+     * Store images on disk in the session disk cache. Images stored with this lifetime will
+     * be removed when the app starts again or when the session cache is explicitly cleared.
+     */
+    NINetworkImageViewDiskCacheLifetimeSession,
+    
+    /**
+     * Store images on disk in the permanent disk cache. Images stored with this lifetime will
+     * only be removed when the permanent cache is explicitly cleared.
+     */
+    NINetworkImageViewDiskCacheLifetimePermanent,
 } NINetworkImageViewDiskCacheLifetime;
 
 typedef enum {
-  NINetworkImageViewScaleToFitLeavesExcessAndScaleToFillCropsExcess = 0x00,
-  NINetworkImageViewScaleToFitCropsExcess    = 0x01,
-  NINetworkImageViewScaleToFillLeavesExcess  = 0x02,
+    NINetworkImageViewScaleToFitLeavesExcessAndScaleToFillCropsExcess = 0x00,
+    NINetworkImageViewScaleToFitCropsExcess    = 0x01,
+    NINetworkImageViewScaleToFillLeavesExcess  = 0x02,
 } NINetworkImageViewScaleOptions;
 
 /**
@@ -136,6 +136,12 @@ typedef enum {
  * The image has completed an asynchronous download of the image.
  */
 - (void)networkImageView:(NINetworkImageView *)imageView didLoadImage:(UIImage *)image;
+
+/**
+ * The image has completed an asynchronous download of the image.
+ */
+- (void)networkImageView:(NINetworkImageView *)imageView didLoadImage:(UIImage *)image cached:(BOOL)cached;
+
 
 /**
  * The asynchronous download failed.
