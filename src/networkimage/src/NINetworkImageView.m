@@ -19,7 +19,6 @@
 #import "NINetworkImageView.h"
 
 #import "NimbusCore.h"
-#import "AFNetworking.h"
 #import "NIImageProcessing.h"
 
 #if !defined(__has_feature) || !__has_feature(objc_arc)
