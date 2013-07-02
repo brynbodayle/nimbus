@@ -117,6 +117,7 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString *attributedS
 @property (nonatomic, NI_STRONG) NSMutableArray* explicitLinkLocations;
 @property (nonatomic, NI_STRONG) NSTextCheckingResult* originalLink;
 @property (nonatomic, NI_STRONG) NSTextCheckingResult* touchedLink;
+@property (nonatomic, assign) CTFrameRef originalTextFrame;
 @property (nonatomic, NI_STRONG) NSTimer* longPressTimer;
 @property (nonatomic, assign) CGPoint touchPoint;
 @property (nonatomic, NI_STRONG) NSTextCheckingResult* actionSheetLink;
@@ -897,13 +898,13 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString *attributedS
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)isPoint:(CGPoint)point nearLink:(NSTextCheckingResult *)link {
-  CFArrayRef lines = CTFrameGetLines(self.textFrame);
+  CFArrayRef lines = CTFrameGetLines(self.originalTextFrame);
   if (nil == lines) {
     return NO;
   }
   CFIndex count = CFArrayGetCount(lines);
   CGPoint lineOrigins[count];
-  CTFrameGetLineOrigins(self.textFrame, CFRangeMake(0, 0), lineOrigins);
+  CTFrameGetLineOrigins(self.originalTextFrame, CFRangeMake(0, 0), lineOrigins);
 
   CGAffineTransform transform = [self _transformForCoreText];
   CGFloat verticalOffset = [self _verticalOffsetForBounds:self.bounds];
@@ -978,14 +979,19 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString *attributedS
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
   [super touchesBegan:touches withEvent:event];
-
+    
   UITouch* touch = [touches anyObject];
   CGPoint point = [touch locationInView:self];
 
+  NSMutableAttributedString* attributedStringWithLinks = [self mutableAttributedStringWithAdditions];
+  CFAttributedStringRef attributedString = (__bridge CFAttributedStringRef)attributedStringWithLinks;
+  CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(attributedString);
+  self.originalTextFrame = CTFramesetterCreateFrame(framesetter, CTFrameGetStringRange(self.textFrame), CTFrameGetPath(self.textFrame), CTFrameGetFrameAttributes(self.textFrame));
+    
   self.touchedLink = [self linkAtPoint:point];
   self.touchPoint = point;
   self.originalLink = self.touchedLink;
-
+    
   [self.longPressTimer invalidate];
   if (nil != self.touchedLink) {
     self.longPressTimer = [NSTimer scheduledTimerWithTimeInterval:kLongPressTimeInterval target:self selector:@selector(_longPressTimerDidFire:) userInfo:nil repeats:NO];
@@ -1057,6 +1063,7 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString *attributedS
 
   self.touchedLink = nil;
   self.originalLink = nil;
+  CFRelease(self.originalTextFrame);
 
   [self setNeedsDisplay];
 }
